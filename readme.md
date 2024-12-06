@@ -443,11 +443,6 @@ While serving the RSS feed is relatively low-risk, securing your server with SSL
 
 ---
 
-### **Conclusion**
-
-Now your RSS feed is live and being broadcast from your Ubuntu VPS via Nginx. You can access the feed via your VPS IP or a domain name, and if you’ve set up SSL, your feed will be served securely over HTTPS.
-
-Let me know if you need any more assistance!
 
 ### **Etcetera**
 To read the RSS feed that the Python script generates, you can use several methods depending on your preferences and available tools. Here are the most common ways to read an RSS feed:
@@ -551,6 +546,11 @@ If you prefer to receive the RSS feed updates directly in your email, you can us
 If you want to automate checking the RSS feed, you can set up a cron job on your server or computer to periodically fetch the feed and run the necessary logic.
 
 For example, set up a cron job that runs every hour to check for new transactions in the RSS feed.
+
+
+### **Conclusion**
+
+Now your RSS feed is live and being broadcast from your Ubuntu VPS via Nginx. You can access the feed via your VPS IP or a domain name, and if you’ve set up SSL, your feed will be served securely over HTTPS.
 
 ---
 
