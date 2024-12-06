@@ -547,6 +547,86 @@ If you want to automate checking the RSS feed, you can set up a cron job on your
 
 For example, set up a cron job that runs every hour to check for new transactions in the RSS feed.
 
+To automate your RSS feed creation and copying process every 4 hours, you can use **cron**, which is a time-based job scheduler in Unix-like operating systems. This will allow you to run your Python script and the copy command at regular intervals.
+
+### **Steps to Automate the Process with Cron**
+
+1. **Open the Crontab Configuration**:
+   
+   Edit the cron jobs for your user by running the following command:
+
+   ```bash
+   crontab -e
+   ```
+
+   This will open the crontab file in your default text editor.
+
+2. **Add a New Cron Job**:
+
+   To run your Python script and copy the file every 4 hours, add the following line at the end of the crontab file:
+
+   ```bash
+   0 */4 * * * python3 /home/vkaxcoin/create_rss_feed.py && sudo cp /home/vkaxcoin/vkax_high_value_transactions.xml /var/www/html/rss/
+   ```
+
+   Here's the breakdown of the cron job syntax:
+
+   - `0 */4 * * *`:
+     - `0` = At minute 0 (start of the hour).
+     - `*/4` = Every 4 hours.
+     - `* *` = Every day of the month, every month, and every weekday.
+   
+   - `python3 /home/vkaxcoin/create_rss_feed.py` = This runs your Python script to create the RSS feed.
+   - `&&` = This ensures that the second command only runs if the first one is successful.
+   - `sudo cp /home/vkaxcoin/vkax_high_value_transactions.xml /var/www/html/rss/` = This copies the generated XML file to the web server's directory.
+
+3. **Ensure Proper Permissions**:
+   
+   Since you're using `sudo` to copy the file, make sure that the user running the cron job (in this case, your logged-in user) has sudo privileges to execute the `cp` command without requiring a password.
+
+   You can configure this in the sudoers file:
+
+   - Run `sudo visudo` to edit the sudoers file.
+   - Add the following line at the end of the file:
+
+     ```bash
+     vkaxcoin ALL=(ALL) NOPASSWD: /bin/cp /home/vkaxcoin/vkax_high_value_transactions.xml /var/www/html/rss/
+     ```
+
+     This allows the user `vkaxcoin` to run the `cp` command with `sudo` without needing to enter a password.
+
+4. **Save and Exit the Crontab File**:
+
+   - After adding the line, save and exit the editor:
+     - If you're using `nano`, press `CTRL+X`, then `Y` to confirm saving, and `Enter` to exit.
+   
+5. **Verify Cron Job**:
+
+   You can check if your cron job is added successfully by running:
+
+   ```bash
+   crontab -l
+   ```
+
+   This will list all your active cron jobs.
+
+6. **Check the Cron Job Logs**:
+
+   Cron jobs typically log their output in the system log. You can check if your job runs correctly by looking at the cron log:
+
+   ```bash
+   grep CRON /var/log/syslog
+   ```
+
+   This will show any output from the cron jobs, including any potential errors.
+
+### **Summary**
+
+The cron job you’ve added will:
+
+- Run your script (`/home/vkaxcoin/create_rss_feed.py`) every 4 hours.
+- After the script runs successfully, it will copy the RSS feed file (`vkax_high_value_transactions.xml`) to the Nginx web directory (`/var/www/html/rss/`).
+  
 
 ### **Conclusion**
 
