@@ -135,27 +135,43 @@ First, you need to install some essential dependencies for building VKAX on Ubun
    pip3 install requests
    ```
 
+Certainly! Here is the updated **Step 6** with instructions to download the script directly from GitHub instead of manually creating it:
+
+---
+
 ### **Step 6: Set Up the Python Script**
 
-1. **Create the Python Script**:
+1. **Download the Python Script**:
 
-   Navigate to the directory where you want to store the script. For example, let's store it in `/home/ubuntu/`.
+   Instead of manually copying the script, you can download it directly from the GitHub repository.
 
-   ```bash
-   nano /home/ubuntu/create_rss_feed.py
-   ```
-
-   Copy the Python script you provided earlier into this file and save it (`Ctrl + O`, then `Ctrl + X` to exit).
-
-2. **Run the Python Script**:
-
-   Before running the script, make sure the VKAX daemon is running and fully synced. Then, run the script with:
+   Run the following command to download the `vkax_rss_feed.py` script:
 
    ```bash
-   python3 /home/ubuntu/create_rss_feed.py
+   curl -o /home/ubuntu/vkax_rss_feed.py https://raw.githubusercontent.com/realsetvin/vkax-whale-alert/main/vkax_rss_feed.py
    ```
 
-   The script will now generate an RSS feed based on the last 100 blocks that contain transactions exceeding 1,000,000 VKAX.
+   This will download the script and save it as `vkax_rss_feed.py` in the `/home/ubuntu/` directory.
+
+2. **Install Requests and Other Python Libraries**:
+
+   If you haven’t already, install the necessary Python libraries for the script. In particular, you’ll need the `requests` module, which you can install with:
+
+   ```bash
+   pip3 install requests
+   ```
+
+3. **Run the Python Script**:
+
+   Now that the script is downloaded, you can run it with:
+
+   ```bash
+   python3 /home/ubuntu/vkax_rss_feed.py
+   ```
+
+   The script will start fetching transactions from the VKAX blockchain and create an RSS feed with transactions over the 1,000,000 VKAX threshold.
+
+---
 
 ### **Step 7: Automate the Script (Optional)**
 
