@@ -215,7 +215,241 @@ To run the script automatically on a regular basis, you can use `cron` jobs.
    vkax-cli getblockcount
    ```
 
-### **Step 9: Distribute!**
+   To broadcast the RSS feed from your Ubuntu 22 AMD VPS, you will need to set up a web server to serve the RSS file. This guide will show you how to set up **Nginx** (a popular and efficient web server) to serve your RSS feed file. After that, you will be able to broadcast the RSS feed on your server, accessible via a URL.
+
+### **Step-by-Step Instructions to Broadcast RSS Feed on Ubuntu 22 VPS**
+
+---
+
+### **Step 1: Update Your VPS**
+
+Before setting up the web server, make sure your system is up-to-date.
+
+1. Log in to your VPS via SSH:
+
+   ```bash
+   ssh ubuntu@your-vps-ip
+   ```
+
+2. Update the package list and upgrade your system:
+
+   ```bash
+   sudo apt update && sudo apt upgrade -y
+   ```
+
+---
+
+### **Step 2: Install Nginx**
+
+Nginx is a powerful web server that will serve your RSS feed.
+
+1. Install Nginx:
+
+   ```bash
+   sudo apt install nginx -y
+   ```
+
+2. After installation, start and enable Nginx to run automatically on boot:
+
+   ```bash
+   sudo systemctl start nginx
+   sudo systemctl enable nginx
+   ```
+
+3. Check if Nginx is running by opening your server's IP address in a web browser:
+
+   ```bash
+   http://your-vps-ip
+   ```
+
+   You should see the default Nginx landing page.
+
+---
+
+### **Step 3: Create a Directory for the RSS Feed**
+
+Now, create a directory to store the RSS feed file.
+
+1. Create a directory in `/var/www/html` (the default web root for Nginx):
+
+   ```bash
+   sudo mkdir /var/www/html/rss
+   ```
+
+2. If you haven't already, copy or download the RSS feed file into this directory. For example, if your RSS feed file is `vkax_high_value_transactions.xml`, run:
+
+   ```bash
+   sudo cp /home/ubuntu/vkax_high_value_transactions.xml /var/www/html/rss/
+   ```
+
+3. Set the appropriate permissions to make sure Nginx can access the file:
+
+   ```bash
+   sudo chown -R www-data:www-data /var/www/html/rss
+   sudo chmod -R 755 /var/www/html/rss
+   ```
+
+---
+
+### **Step 4: Configure Nginx to Serve the RSS Feed**
+
+Now, configure Nginx to serve your RSS feed file from the server.
+
+1. Open the Nginx configuration file in a text editor:
+
+   ```bash
+   sudo nano /etc/nginx/sites-available/default
+   ```
+
+2. Modify the configuration to add a new location block to serve your RSS feed:
+
+   Inside the `server` block, add this configuration to serve the RSS feed:
+
+   ```nginx
+   server {
+       listen 80 default_server;
+       listen [::]:80 default_server;
+
+       root /var/www/html;
+       index index.html index.htm index.nginx-debian.html;
+
+       server_name _;
+
+       location /rss {
+           alias /var/www/html/rss;
+           autoindex on;
+       }
+   }
+   ```
+
+   In this configuration:
+   - `location /rss` tells Nginx to look for files under `/var/www/html/rss` when accessing `http://your-vps-ip/rss`.
+   - `autoindex on` will allow you to list the contents of the directory if needed.
+
+3. Save and exit the file by pressing `CTRL + X`, then `Y`, and `Enter`.
+
+---
+
+### **Step 5: Test and Restart Nginx**
+
+Before restarting Nginx, test the configuration for any errors:
+
+1. Test the Nginx configuration:
+
+   ```bash
+   sudo nginx -t
+   ```
+
+   If everything is OK, you will see a message like: `syntax is okay` and `test is successful`.
+
+2. Restart Nginx to apply the changes:
+
+   ```bash
+   sudo systemctl restart nginx
+   ```
+
+---
+
+### **Step 6: Access the RSS Feed**
+
+Now that Nginx is configured to serve your RSS feed, you can access it via your VPS's IP address.
+
+1. Open a web browser and visit:
+
+   ```bash
+   http://your-vps-ip/rss/vkax_high_value_transactions.xml
+   ```
+
+   This will display the RSS feed in XML format.
+
+   If you want a nicely formatted display, you may need to use an RSS reader (as discussed earlier).
+
+---
+
+### **Step 7: Set Up a Domain Name (Optional)**
+
+If you'd like to access your RSS feed via a domain name rather than just the VPS IP, you can set up a domain. Here’s how to do it:
+
+1. Purchase a domain from a provider (e.g., Namecheap, GoDaddy, etc.).
+
+2. Point your domain's DNS to the IP address of your VPS (use the A record in your domain’s DNS settings).
+
+3. After configuring your domain, update Nginx to use the domain:
+
+   Open the Nginx configuration file again:
+
+   ```bash
+   sudo nano /etc/nginx/sites-available/default
+   ```
+
+   Change the `server_name` to your domain name:
+
+   ```nginx
+   server_name your-domain.com;
+   ```
+
+4. Test and restart Nginx:
+
+   ```bash
+   sudo nginx -t
+   sudo systemctl restart nginx
+   ```
+
+5. You should now be able to access the feed via `http://your-domain.com/rss/vkax_high_value_transactions.xml`.
+
+---
+
+### **Step 8: Automate the RSS Feed Update (Optional)**
+
+If the RSS feed updates regularly, you can automate the process of uploading the new feed. Here’s how you can use a cron job to automate this:
+
+1. Edit the crontab for the `ubuntu` user:
+
+   ```bash
+   crontab -e
+   ```
+
+2. Add a cron job that downloads the new RSS feed every hour (or based on your preferred schedule). For example:
+
+   ```bash
+   0 * * * * curl -o /var/www/html/rss/vkax_high_value_transactions.xml https://your-script-url.com/rss_feed.xml
+   ```
+
+   This cron job will fetch the latest RSS feed every hour and replace the old file.
+
+3. Save and exit the crontab.
+
+---
+
+### **Step 9: Secure Your Server (Optional)**
+
+While serving the RSS feed is relatively low-risk, securing your server with SSL (HTTPS) is always a good idea.
+
+1. **Install Certbot** (to get a free SSL certificate):
+
+   ```bash
+   sudo apt install certbot python3-certbot-nginx -y
+   ```
+
+2. **Obtain an SSL certificate** for your domain:
+
+   ```bash
+   sudo certbot --nginx -d your-domain.com
+   ```
+
+   Follow the prompts to complete the SSL setup.
+
+3. Once SSL is set up, you can access your RSS feed securely via `https://your-domain.com/rss/vkax_high_value_transactions.xml`.
+
+---
+
+### **Conclusion**
+
+Now your RSS feed is live and being broadcast from your Ubuntu VPS via Nginx. You can access the feed via your VPS IP or a domain name, and if you’ve set up SSL, your feed will be served securely over HTTPS.
+
+Let me know if you need any more assistance!
+
+### **Etcetera**
 To read the RSS feed that the Python script generates, you can use several methods depending on your preferences and available tools. Here are the most common ways to read an RSS feed:
 
 ### **1. Use a Web Browser**
