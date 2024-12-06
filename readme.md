@@ -155,7 +155,7 @@ First, you need to install some essential dependencies for building VKAX on Ubun
    python3 /home/ubuntu/create_rss_feed.py
    ```
 
-   The script will now generate an RSS feed based on the last 100 blocks that contain transactions exceeding 10,000 VKAX.
+   The script will now generate an RSS feed based on the last 100 blocks that contain transactions exceeding 10,000,000 VKAX.
 
 ### **Step 7: Automate the Script (Optional)**
 
