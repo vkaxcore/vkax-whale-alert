@@ -1,3 +1,32 @@
+The **VKAX Whale Alert script** is designed to monitor and generate a feed for large-value transactions on the **VKAX blockchain**. This script performs several key tasks:
+
+### Key Features:
+1. **Fetch Latest Blocks**: 
+   - It checks recent blocks on the VKAX blockchain to identify transactions. The script fetches block data using RPC calls to a VKAX node, looking at a specified number of recent blocks.
+  
+2. **Transaction Filtering**:
+   - The script filters transactions based on their value. Specifically, it looks for transactions where the amount exceeds a defined threshold (e.g., 1,000,000 VKAX). This helps identify "whale" transactions, which are typically large transactions that could indicate significant movements in the network.
+  
+3. **RSS Feed Generation**:
+   - Once it finds these large transactions, it formats them into an **RSS feed**. The feed contains details about each transaction, such as:
+     - The **transaction ID** (TXID).
+     - The **transaction amount**.
+     - The **timestamp** of when the transaction occurred.
+     - A **link** to the explorer for more details.
+  
+4. **Data Formatting for Alerts**:
+   - The output RSS feed is structured to provide concise data that can be easily consumed by users or integrated into other platforms. It includes a title, description, and a link to explore each transaction further.
+
+5. **Automated Updates**:
+   - The script can be run on a regular basis (e.g., every few minutes or hours) to continuously monitor the blockchain for large transactions, ensuring the feed is always up to date.
+
+### Typical Use Cases:
+- **Monitoring Big Moves**: Track large transactions (whale movements) to identify significant shifts in the VKAX blockchain.
+- **Automated Alerts**: Users can subscribe to the RSS feed to get real-time notifications of large transactions, helping them stay informed.
+- **Blockchain Analytics**: Researchers, investors, or analysts interested in blockchain data can use the feed to track unusual or noteworthy transactions in the VKAX ecosystem.
+
+In summary, the **VKAX Whale Alert script** helps automate the process of identifying and tracking large transactions on the VKAX blockchain, then outputs them in an easy-to-follow RSS format for easy monitoring or integration.
+
 Here’s a detailed step-by-step guide to build VKAX from source on Ubuntu 22.04 and then install the script provided. This will help you set up everything from compiling VKAX to running the Python script.
 
 ### **Step 1: Install Dependencies**
