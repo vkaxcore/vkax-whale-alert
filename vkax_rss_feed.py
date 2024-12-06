@@ -22,7 +22,6 @@ def call_rpc(method, params=[]):
     }
     try:
         response = requests.post(RPC_URL, json=data, headers=headers, auth=(RPC_USER, RPC_PASSWORD))
-
         if response.status_code == 200:
             return response.json().get('result', None)
         else:
@@ -34,20 +33,19 @@ def call_rpc(method, params=[]):
 
 def fetch_block_by_height(height):
     print(f"Fetching block at height {height}...")
-    block_data = call_rpc('getblockhash', [height])
-    if block_data:
-        block_data = call_rpc('getblock', [block_data])
+    block_hash = call_rpc('getblockhash', [height])
+    if block_hash:
+        block_data = call_rpc('getblock', [block_hash])
         if block_data:
             print(f"Block height: {block_data.get('height')}, Transactions: {len(block_data.get('tx', []))}")
-        return block_data
-    else:
-        print(f"Failed to fetch block at height {height}.")
-        return None
+            return block_data
+    print(f"Failed to fetch block at height {height}.")
+    return None
 
 def filter_transactions(block_data):
     print("Filtering transactions over the threshold...")
     large_transactions = []
-    for txid in block_data['tx']:
+    for txid in block_data.get('tx', []):
         print(f"Processing transaction ID: {txid}")
         raw_tx = call_rpc('getrawtransaction', [txid, True])
         if raw_tx and 'vout' in raw_tx:
@@ -61,6 +59,8 @@ def filter_transactions(block_data):
                     })
         else:
             print(f"Failed to decode transaction {txid} or no outputs found.")
+    if not large_transactions:
+        print("No transactions found over the threshold in this block.")
     return large_transactions
 
 def create_rss_feed(transactions):
@@ -68,33 +68,26 @@ def create_rss_feed(transactions):
     rss = ET.Element("rss", version="2.0")
     channel = ET.SubElement(rss, "channel")
 
-    # Updated Title and Link
     title = ET.SubElement(channel, "title")
     title.text = "VKAX Whale Watcher"
 
     link = ET.SubElement(channel, "link")
     link.text = "https://explore.vkax.net/"
 
-    # Updated Description
     description = ET.SubElement(channel, "description")
     description.text = "VKAX transactions over 1,000,000"
 
     for tx in transactions:
         item = ET.SubElement(channel, "item")
 
-        # Shortened transaction ID (first 4 and last 4 characters)
         short_txid = f"{tx['txid'][:4]}...{tx['txid'][-4:]}"
-
-        # Format the amount in millions and make sure it shows as 2m instead of 2000000.0M
         amount_in_millions = float(tx['amount']) / 1_000_000
         tx_title = ET.SubElement(item, "title")
         tx_title.text = f"TX {short_txid} ({amount_in_millions:.2f}M)"
 
-        # Full transaction ID for the link
         tx_link = ET.SubElement(item, "link")
         tx_link.text = f"https://explore.vkax.net/tx/{tx['txid']}"
 
-        # Description with formatted amount
         tx_description = ET.SubElement(item, "description")
         tx_description.text = (
             f"{amount_in_millions:.2f}M VKAX at "
@@ -119,7 +112,9 @@ def main():
         print("Failed to get the latest block height. Exiting.")
         return
 
-    # Loop through the last 100 blocks
+    print(f"Latest block height: {latest_block_height}")
+
+    # Loop through the last BLOCK_COUNT blocks
     large_transactions = []
     for height in range(latest_block_height, latest_block_height - BLOCK_COUNT, -1):
         block_data = fetch_block_by_height(height)
@@ -127,7 +122,6 @@ def main():
             print(f"No data found for block height {height}. Skipping.")
             continue
 
-        # Filter the transactions for the current block
         block_large_transactions = filter_transactions(block_data)
         large_transactions.extend(block_large_transactions)
 
