@@ -215,6 +215,109 @@ To run the script automatically on a regular basis, you can use `cron` jobs.
    vkax-cli getblockcount
    ```
 
-### **Step 9: Done!**
+### **Step 9: Distribute!**
+To read the RSS feed that the Python script generates, you can use several methods depending on your preferences and available tools. Here are the most common ways to read an RSS feed:
 
-You should now have VKAX built from source and the Python script set up and running on your Ubuntu 22.04 system. You can periodically check the generated RSS feed for high-value transactions.
+### **1. Use a Web Browser**
+
+Most modern web browsers (like Chrome, Firefox, or Edge) can open and display RSS feeds directly.
+
+- **Open the RSS feed in your browser**: 
+   - Navigate to the location where the RSS feed file is saved (e.g., `vkax_high_value_transactions.xml`).
+   - If the file is hosted on a web server (like your own server), you can open the URL to the RSS feed (e.g., `https://your-site-url.com/vkax_high_value_transactions.xml`).
+   - The browser will display the RSS feed in XML format. It won't be nicely formatted but you can still view the data.
+   
+   **Note**: Some browsers, like Firefox, may offer a basic visual interface for reading RSS feeds. For a better experience, you might want to use an RSS reader (described below).
+
+### **2. Use an RSS Reader**
+
+There are many dedicated RSS readers available that will fetch, display, and update your RSS feeds automatically. These can help you read RSS feeds in a more user-friendly format.
+
+- **Popular RSS readers include**:
+   - **Feedly**: A cloud-based RSS reader, accessible via browser and mobile apps. You can simply add the URL of your RSS feed to start reading.
+   - **RSSOwl**: A free, desktop-based RSS reader that works on Windows, Linux, and macOS.
+   - **QuiteRSS**: Another free desktop RSS reader with a simple interface and useful features.
+
+   To use any of these:
+   1. **Add the feed URL**: If the RSS feed is hosted online, use the URL where the feed is located (e.g., `https://your-site-url.com/vkax_high_value_transactions.xml`).
+   2. **View the feed**: The RSS reader will show the feed in an organized way, typically with titles, timestamps, and links to each transaction.
+
+### **3. Use Command Line Tools**
+
+If you are on a Linux-based system and prefer the command line, there are tools you can use to fetch and display RSS feed data.
+
+- **Using `w3m`** (a text-based browser):
+   1. Install `w3m` if it's not already installed:
+
+      ```bash
+      sudo apt install w3m
+      ```
+
+   2. Use `w3m` to open the RSS feed in the terminal:
+
+      ```bash
+      w3m /path/to/vkax_high_value_transactions.xml
+      ```
+
+   This will render the XML file in a text-based browser.
+
+- **Using `rss2email`** (a command-line RSS reader):
+
+   1. Install `rss2email`:
+
+      ```bash
+      sudo apt install rss2email
+      ```
+
+   2. Fetch the feed directly from the file or URL:
+
+      ```bash
+      rss2email /path/to/vkax_high_value_transactions.xml
+      ```
+
+   Alternatively, if you have a URL for the feed:
+
+      ```bash
+      rss2email https://your-site-url.com/vkax_high_value_transactions.xml
+      ```
+
+### **4. Programmatically Read the RSS Feed**
+
+If you'd like to programmatically access and process the RSS feed (for example, to display it in a web application or integrate with another service), you can parse the XML file using a programming language like Python.
+
+Here’s an example of how to read an RSS feed in Python:
+
+```python
+import feedparser
+
+# URL to the RSS feed
+rss_feed_url = "https://your-site-url.com/vkax_high_value_transactions.xml"
+
+# Parse the RSS feed
+feed = feedparser.parse(rss_feed_url)
+
+# Display each entry in the feed
+for entry in feed.entries:
+    print(f"Title: {entry.title}")
+    print(f"Link: {entry.link}")
+    print(f"Description: {entry.description}")
+    print(f"Published: {entry.published}")
+    print("-" * 40)
+```
+
+### **5. Use an RSS to Email Service**
+
+If you prefer to receive the RSS feed updates directly in your email, you can use an online service to convert the RSS feed into email notifications.
+
+- **Feedly** and other RSS services often provide email notifications.
+- **Mailbrew**: A service that allows you to receive RSS updates as daily email summaries.
+
+### **6. Automate RSS Feed Checks (Optional)**
+
+If you want to automate checking the RSS feed, you can set up a cron job on your server or computer to periodically fetch the feed and run the necessary logic.
+
+For example, set up a cron job that runs every hour to check for new transactions in the RSS feed.
+
+---
+
+Choose the method that best fits your needs. If you want automatic updates and notifications, an RSS reader or email service is recommended. If you prefer reading it directly from your system, the command line or browser methods work well.
