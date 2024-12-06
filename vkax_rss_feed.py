@@ -67,28 +67,34 @@ def create_rss_feed(transactions):
     print("Creating RSS feed XML...")
     rss = ET.Element("rss", version="2.0")
     channel = ET.SubElement(rss, "channel")
+
+    # Updated Title and Link
     title = ET.SubElement(channel, "title")
-    title.text = "VKAX High Value Transactions"
+    title.text = "VKAX Whale Watcher"
+
     link = ET.SubElement(channel, "link")
-    link.text = "https://your-site-url.com"
+    link.text = "https://explore.vkax.net/"
+
+    # Updated Description
     description = ET.SubElement(channel, "description")
-    description.text = "Feed for VKAX transactions over 1,000,000 VKAX"
+    description.text = "VKAX transactions over 1,000,000"
 
     for tx in transactions:
         item = ET.SubElement(channel, "item")
 
-        # Truncate the transaction ID for Twitter-friendly output
-        tx_title = ET.SubElement(item, "title")
+        # Shortened transaction ID (first 4 and last 4 characters)
+        short_txid = f"{tx['txid'][:4]}...{tx['txid'][-4:]}"
 
         # Format the amount in millions and make sure it shows as 2m instead of 2000000.0M
         amount_in_millions = float(tx['amount']) / 1_000_000
-        tx_title.text = f"TX {tx['txid'][:8]}... ({amount_in_millions:.2f}M)"
+        tx_title = ET.SubElement(item, "title")
+        tx_title.text = f"TX {short_txid} ({amount_in_millions:.2f}M)"
 
-        # Use a short link for the transaction
+        # Full transaction ID for the link
         tx_link = ET.SubElement(item, "link")
-        tx_link.text = f"https://explore.vkax.net/tx/{tx['txid'][:8]}"
+        tx_link.text = f"https://explore.vkax.net/tx/{tx['txid']}"
 
-        # Truncate the description and format it
+        # Description with formatted amount
         tx_description = ET.SubElement(item, "description")
         tx_description.text = (
             f"{amount_in_millions:.2f}M VKAX at "
