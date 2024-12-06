@@ -7,13 +7,12 @@ RPC_USER = 'daemonrpcuser'
 RPC_PASSWORD = 'daemonrpcpassword'
 RPC_URL = 'http://127.0.0.1:11111'  # Adjust if needed (local node address)
 
-# Threshold for filtering transactions (1M VKAX)
+# Threshold for filtering transactions (1000000 VKAX)
 TRANSACTION_THRESHOLD = 1000000
 BLOCK_COUNT = 100  # Number of blocks to check
 
 # Helper function to call the local blockchain RPC
 def call_rpc(method, params=[]):
-    """Call the local blockchain RPC and handle errors."""
     headers = {'Content-Type': 'application/json'}
     data = {
         "jsonrpc": "1.0",
@@ -23,14 +22,17 @@ def call_rpc(method, params=[]):
     }
     try:
         response = requests.post(RPC_URL, json=data, headers=headers, auth=(RPC_USER, RPC_PASSWORD))
-        response.raise_for_status()  # Raises HTTPError for bad responses
-        return response.json().get('result', None)
+
+        if response.status_code == 200:
+            return response.json().get('result', None)
+        else:
+            print(f"RPC error ({method}): {response.status_code} - {response.text}")
+            return None
     except requests.exceptions.RequestException as e:
         print(f"RPC request failed ({method}): {e}")
         return None
 
 def fetch_block_by_height(height):
-    """Fetch block data by its height."""
     print(f"Fetching block at height {height}...")
     block_data = call_rpc('getblockhash', [height])
     if block_data:
@@ -43,10 +45,9 @@ def fetch_block_by_height(height):
         return None
 
 def filter_transactions(block_data):
-    """Filter transactions over the threshold."""
     print("Filtering transactions over the threshold...")
     large_transactions = []
-    for txid in block_data.get('tx', []):
+    for txid in block_data['tx']:
         print(f"Processing transaction ID: {txid}")
         raw_tx = call_rpc('getrawtransaction', [txid, True])
         if raw_tx and 'vout' in raw_tx:
@@ -63,7 +64,6 @@ def filter_transactions(block_data):
     return large_transactions
 
 def create_rss_feed(transactions):
-    """Create the RSS feed XML."""
     print("Creating RSS feed XML...")
     rss = ET.Element("rss", version="2.0")
     channel = ET.SubElement(rss, "channel")
@@ -76,34 +76,35 @@ def create_rss_feed(transactions):
 
     for tx in transactions:
         item = ET.SubElement(channel, "item")
-        tx_title = ET.SubElement(item, "title")
-        tx_title.text = f"Transaction {tx['txid']}"
-        
-        # Use space-saving notation (e.g., "10K" instead of "10,000")
-        amount = float(tx['amount'])
-        formatted_amount = f"{amount / 1000000:.2f}M" if amount >= 1000000 else f"{amount / 1000:.2f}K" if amount >= 1000 else str(amount)
 
+        # Truncate the transaction ID for Twitter-friendly output
+        tx_title = ET.SubElement(item, "title")
+
+        # Format the amount in millions and make sure it shows as 2m instead of 2000000.0M
+        amount_in_millions = float(tx['amount']) / 1_000_000
+        tx_title.text = f"TX {tx['txid'][:8]}... ({amount_in_millions:.2f}M)"
+
+        # Use a short link for the transaction
         tx_link = ET.SubElement(item, "link")
-        tx_link.text = f"https://explore.vkax.net/tx/{tx['txid']}"
-        
+        tx_link.text = f"https://explore.vkax.net/tx/{tx['txid'][:8]}"
+
+        # Truncate the description and format it
         tx_description = ET.SubElement(item, "description")
         tx_description.text = (
-            f"Transaction of {formatted_amount} VKAX at "
-            f"{datetime.utcfromtimestamp(tx['time']).strftime('%Y-%m-%d %H:%M:%S')} UTC"
+            f"{amount_in_millions:.2f}M VKAX at "
+            f"{datetime.utcfromtimestamp(tx['time']).strftime('%Y-%m-%d %H:%M')} UTC"
         )
 
     print("RSS feed creation complete.")
     return ET.tostring(rss, encoding="utf-8")
 
 def save_rss_feed(rss_feed):
-    """Save the generated RSS feed to a file."""
     filename = "vkax_high_value_transactions.xml"
     with open(filename, "wb") as f:
         f.write(rss_feed)
     print(f"RSS feed saved to {filename}")
 
 def main():
-    """Main function to generate the RSS feed."""
     print("Starting RSS feed generation process...")
 
     # Get the latest block height
